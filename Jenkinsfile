@@ -8,6 +8,35 @@ pipeline {
     parameters{
         choice(name: 'ENVIRONMENT', choices: ['create', 'destroy'], description: 'create and destroy cluster with one click')
     }
+
+    stages {
+        stage("Create an EKS Cluster") {
+            when {
+                expression { params.ENVIRONMENT == 'create' }
+            }
+            steps {
+                script {
+                    dir('eks') {
+                        sh "terraform init"
+                        sh "terraform apply -auto-approve"
+                    }
+                }
+            }
+        }
+
+        stage("destroy an EKS Cluster") {
+            when {
+                expression { params.ENVIRONMENT == 'destroy' }
+            }
+            steps {
+                script {
+                    dir('eks') {
+                        sh "terraform destroy -auto-approve"
+                    }
+                }
+            }
+        }
+    
     stages {
      
         stage("Create prometheus") {
